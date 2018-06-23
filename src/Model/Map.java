@@ -12,7 +12,7 @@ public class Map extends Observable {
 	public static final int MAX_OCTAVE = 16;
 	
 	private final static double SEA_LINE = 0.5;
-	private final static double BEACH_LINE = 0.7;
+	private final static double BEACH_LINE = 0.65;
 
 	private final static int CLEANUP_COUNT = 40;
 	
@@ -244,7 +244,7 @@ public class Map extends Observable {
 			tileD = tiles[x][y + 1];
 		}
 
-		if (tileU == TileType.BEACH && tileR == TileType.BEACH) {
+		/*if (tileU == TileType.BEACH && tileR == TileType.BEACH) {
 			return TileType.MOUNTAIN_RCU;
 		} else if (tileU == TileType.BEACH && tileL == TileType.BEACH) {
 			return TileType.MOUNTAIN_LCU;
@@ -260,6 +260,24 @@ public class Map extends Observable {
 			return TileType.MOUNTAIN_U;
 		} else if (tileD == TileType.BEACH) {
 			return TileType.MOUNTAIN_D;
+		}*/
+		
+		if (TileType.isBeach(tileU) && TileType.isBeach(tileR)) {
+			return TileType.MOUNTAIN_RCU;
+		} else if (TileType.isBeach(tileU) && TileType.isBeach(tileL)) {
+			return TileType.MOUNTAIN_LCU;
+		} else if (TileType.isBeach(tileD) && TileType.isBeach(tileR)) {
+			return TileType.MOUNTAIN_RCL;
+		} else if (TileType.isBeach(tileD) && TileType.isBeach(tileL)) {
+			return TileType.MOUNTAIN_LCL;
+		} else if (TileType.isBeach(tileU)) {
+			return TileType.MOUNTAIN_U;
+		} else if (TileType.isBeach(tileD)) {
+			return TileType.MOUNTAIN_D;
+		} else if (TileType.isBeach(tileR)) {
+			return TileType.MOUNTAIN_R;
+		} else if (TileType.isBeach(tileL)) {
+			return TileType.MOUNTAIN_L;
 		}
 
 		return TileType.MOUNTAIN;

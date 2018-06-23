@@ -41,4 +41,24 @@ public enum TileType {
 	public int getY() {
 		return y;
 	}
+	
+	public static boolean isBeach(TileType tileType) {
+		if(tileType == null) return false;
+		switch(tileType) {
+		case BEACH:
+		case BEACH_D:
+		case BEACH_L:
+		case BEACH_U:
+		case BEACH_LCL:
+		case BEACH_LCU:
+		case BEACH_R:
+		case BEACH_RCL:
+		case BEACH_RCU:
+		case BEACH_SPL:
+		case BEACH_SPR:
+			return true;
+		default:
+			return false;
+		}
+	}
 }
