@@ -22,4 +22,9 @@ public class Controller {
 		this.gui.updateTitle();
 		this.map.setWidth(width);
 	}
+
+	public void generateMap() {
+		// TODO Auto-generated method stub
+		
+	}
 }

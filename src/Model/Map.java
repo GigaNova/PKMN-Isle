@@ -10,17 +10,31 @@ public class Map extends Observable{
 	private int height;
 	private int width;
 	
+	private TileType[][] tiles;
+	
 	public Map() {
 		this.height = (MAX_MAP_SIZE / 2) + (MIN_MAP_SIZE / 2);
 		this.width = (MAX_MAP_SIZE / 2) + (MIN_MAP_SIZE / 2);
+		this.resetTiles();
 	}
 
+	private void resetTiles() {
+		this.tiles = new TileType[this.width][this.height];
+
+		for(int i = 0; i < this.width; ++i) {
+			for(int j = 0; j < this.height; ++j) {
+				this.tiles[i][j] = TileType.SEA;
+			}
+		}
+	}
+	
 	public int getHeight() {
 		return height;
 	}
 
 	public void setHeight(int height) {
 		this.height = height;
+		this.resetTiles();
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -31,7 +45,12 @@ public class Map extends Observable{
 
 	public void setWidth(int width) {
 		this.width = width;
+		this.resetTiles();
 		this.setChanged();
 		this.notifyObservers();
+	}
+
+	public TileType[][] getTiles() {
+		return tiles;
 	}
 }

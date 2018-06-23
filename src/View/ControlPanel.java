@@ -1,6 +1,7 @@
 package View;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -36,6 +37,12 @@ public class ControlPanel extends JPanel {
 		mapHeightSlider.setPaintTicks(true);
 		mapHeightSlider.setPaintLabels(true);
 		this.add(mapHeightSlider);
+		
+		JButton generateButton = new JButton("Generate");
+		generateButton.addActionListener((e) ->{
+			controller.generateMap();
+		});
+		this.add(generateButton);
 	}
 	
 }
