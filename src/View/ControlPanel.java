@@ -38,6 +38,17 @@ public class ControlPanel extends JPanel {
 		mapHeightSlider.setPaintLabels(true);
 		this.add(mapHeightSlider);
 		
+		this.add(new JLabel("Octave"));
+		JSlider mapOctaveSlider = new JSlider(JSlider.HORIZONTAL, Map.MIN_OCTAVE, Map.MAX_OCTAVE, map.getOctaves());
+		mapOctaveSlider.addChangeListener((e) ->{
+			controller.setOctave(mapOctaveSlider.getValue());
+		});
+		mapOctaveSlider.setMajorTickSpacing(2);
+		mapOctaveSlider.setMinorTickSpacing(1);
+		mapOctaveSlider.setPaintTicks(true);
+		mapOctaveSlider.setPaintLabels(true);
+		this.add(mapOctaveSlider);
+		
 		JButton generateButton = new JButton("Generate");
 		generateButton.addActionListener((e) ->{
 			controller.generateMap();

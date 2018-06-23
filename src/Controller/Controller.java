@@ -24,7 +24,10 @@ public class Controller {
 	}
 
 	public void generateMap() {
-		// TODO Auto-generated method stub
-		
+		this.map.generateMap();
+	}
+
+	public void setOctave(int octaves) {
+		this.map.setOctaves(octaves);
 	}
 }
