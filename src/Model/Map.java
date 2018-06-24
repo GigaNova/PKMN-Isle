@@ -12,6 +12,7 @@ public class Map extends Observable {
 	public static final int MAX_OCTAVE = 10;
 	
 	private final static int MAX_ROCKS = 24;
+	private final static int MAX_BEACH_ROCKS = 24;
 	private final static int MAX_FLOWERS = 48;
 	
 	private final static double SEA_LINE = 0.5;
@@ -25,12 +26,17 @@ public class Map extends Observable {
 	private int octaves;
 	private float roughness;
 	private float scale;
+	
 	private boolean grassEnabled;
 	private boolean flowersEnabled;
 	private boolean secondMountainEnabled;
-
+	private boolean beachRocksEnabled;
+	private boolean showPermissions;
+	private boolean surfAble;
+	
 	private TileType[][] tiles;
-
+	private Permission[][] permissions;
+	
 	public Map() {
 		this.height = (MAX_MAP_SIZE / 2) + (MIN_MAP_SIZE / 2);
 		this.width = (MAX_MAP_SIZE / 2) + (MIN_MAP_SIZE / 2);
@@ -39,16 +45,21 @@ public class Map extends Observable {
 		this.scale = 0.012f;
 		this.grassEnabled = false;
 		this.secondMountainEnabled = true;
+		this.beachRocksEnabled = false;
 		this.flowersEnabled = true;
+		this.showPermissions = false;
+		this.surfAble = true;
 		this.resetTiles();
 	}
 
 	private void resetTiles() {
 		this.tiles = new TileType[this.width][this.height];
+		this.permissions = new Permission[this.width][this.height];
 
 		for (int i = 0; i < this.width; ++i) {
 			for (int j = 0; j < this.height; ++j) {
 				this.tiles[i][j] = TileType.SEA;
+				this.permissions[i][j] = Permission.FOUR;
 			}
 		}
 	}
@@ -147,8 +158,31 @@ public class Map extends Observable {
 			this.tryPlaceRock();
 		}
 		
+		if(this.beachRocksEnabled) {
+			this.tryPlaceBeachRocks();			
+		}
+
+		this.buildPermissionLayer();
+		
 		this.setChanged();
 		this.notifyObservers();
+	}
+
+	private void buildPermissionLayer() {
+		for (int x = 0; x < tiles.length; x++) {
+			for (int y = 0; y < tiles[x].length; y++) {
+				TileType type = tiles[x][y];
+				if(TileType.isBeach(type) || TileType.isGrass(type)) {
+					this.permissions[x][y] = Permission.C;
+				}
+				else if(type == TileType.SEA && this.surfAble) {
+					this.permissions[x][y] = Permission.FOUR;
+				}
+				else {
+					this.permissions[x][y] = Permission.ONE;
+				}
+			}
+		}
 	}
 
 	private void fillGrass() {
@@ -189,6 +223,17 @@ public class Map extends Observable {
 		}
 	}
 
+	private void tryPlaceBeachRocks() {
+		Random random = new Random();
+		for(int i = 0; i < MAX_BEACH_ROCKS; ++i) {
+			int randX = random.nextInt(this.width - 4) + 4;
+			int randY = random.nextInt(this.height - 4) + 4;
+			if(tiles[randX][randY] == TileType.BEACH) {
+				tiles[randX][randY] = TileType.BEACH_ROCK;
+			}
+		}	
+	}
+	
 	private void tryPlaceRock() {
 		Random random = new Random();
 		int randX = random.nextInt(this.width - 2);
@@ -213,10 +258,20 @@ public class Map extends Observable {
 			return;
 		}
 		
-		tiles[randX][randY] = TileType.ROCK_UL;
-		tiles[randX + 1][randY] = TileType.ROCK_UR;
-		tiles[randX][randY + 1] = TileType.ROCK_LL;
-		tiles[randX + 1][randY + 1] = TileType.ROCK_LR;
+		int rock_version = (Math.random() <= 0.5) ? 1 : 2;
+		
+		if(rock_version == 1) {
+			tiles[randX][randY] = TileType.ROCK_UL;
+			tiles[randX + 1][randY] = TileType.ROCK_UR;
+			tiles[randX][randY + 1] = TileType.ROCK_LL;
+			tiles[randX + 1][randY + 1] = TileType.ROCK_LR;
+		}
+		else {
+			tiles[randX][randY] = TileType.ROCK_2_UL;
+			tiles[randX + 1][randY] = TileType.ROCK_2_UR;
+			tiles[randX][randY + 1] = TileType.ROCK_2_LL;
+			tiles[randX + 1][randY + 1] = TileType.ROCK_2_LR;
+		}
 	}
 
 	public float[][] generateGradient(){
@@ -562,9 +617,13 @@ public class Map extends Observable {
 	}
 
 	public TileType[][] getTiles() {
-		return tiles;
+		return this.tiles;
 	}
 
+	public Permission[][] getPermissions() {
+		return this.permissions;
+	}
+	
 	public int getOctaves() {
 		return octaves;
 	}
@@ -605,5 +664,23 @@ public class Map extends Observable {
 	
 	public void setFlowers(boolean selected) {
 		this.flowersEnabled = selected;
+	}
+
+	public void setBeachRocks(boolean selected) {
+		this.beachRocksEnabled = selected;
+	}
+	
+	public boolean showPermissions() {
+		return showPermissions;
+	}
+
+	public void setPermissions(boolean selected) {
+		this.showPermissions = selected;
+		this.setChanged();
+		this.notifyObservers();
+	}
+
+	public void setSurfable(boolean selected) {
+		this.surfAble = selected;
 	}
 }

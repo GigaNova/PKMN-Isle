@@ -68,11 +68,36 @@ public class ControlPanel extends JPanel {
 		});
 		this.add(checkbox);
 		
+		JCheckBox SCheckbox = new JCheckBox("Sea is surfable");
+		SCheckbox.setSelected(true);
+		SCheckbox.addActionListener((e)->{
+			controller.setSurfable(SCheckbox.isSelected());
+		});
+		this.add(SCheckbox);
+		
+		JCheckBox RCheckbox = new JCheckBox("Rocks on beach");
+		RCheckbox.setSelected(false);
+		RCheckbox.addActionListener((e)->{
+			controller.setBeachRocks(RCheckbox.isSelected());
+		});
+		this.add(RCheckbox);
+		
 		JSeparator GSeperator = new JSeparator(SwingConstants.HORIZONTAL);
 		GSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
 		this.add(GSeperator);
 		
 		this.add(new GrassPanel(controller, map));
+		
+		JSeparator PSeperator = new JSeparator(SwingConstants.HORIZONTAL);
+		PSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
+		this.add(PSeperator);
+		
+		JCheckBox PCheckbox = new JCheckBox("Show Permissions");
+		PCheckbox.setSelected(false);
+		PCheckbox.addActionListener((e)->{
+			controller.setPermissions(PCheckbox.isSelected());
+		});
+		this.add(PCheckbox);
 		
 		JSeparator BSeperator = new JSeparator(SwingConstants.HORIZONTAL);
 		BSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );

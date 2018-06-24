@@ -42,4 +42,16 @@ public class Controller {
 	public void setFlowers(boolean selected) {
 		this.map.setFlowers(selected);
 	}
+
+	public void setPermissions(boolean selected) {
+		this.map.setPermissions(selected);
+	}
+
+	public void setSurfable(boolean selected) {
+		this.map.setSurfable(selected);
+	}
+	
+	public void setBeachRocks(boolean selected) {
+		this.map.setBeachRocks(selected);
+	}
 }
