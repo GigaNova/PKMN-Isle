@@ -47,12 +47,12 @@ public enum TileType {
 	
 	BEACH_ROCK(137, 18, "AF", "04"),
 	
-	GRASS_1(103, 1, "01", "04"),
-	GRASS_2(103, 18, "08", "04"),
-	GRASS_3(103, 35, "09", "04"),
-	GRASS_4(120, 18, "10", "04"),
-	GRASS_UP(341, 324, "33", "05"),
-	FLOWER(120, 35, "04", "04");
+	GRASS_1(103, 1, "01", "30"),
+	GRASS_2(103, 18, "08", "30"),
+	GRASS_3(103, 35, "09", "30"),
+	GRASS_4(120, 18, "10", "30"),
+	GRASS_UP(341, 324, "33", "04"),
+	FLOWER(120, 35, "04", "30");
 	
 	private final int x;
 	private final int y;
