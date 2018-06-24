@@ -5,12 +5,18 @@ import View.GUI;
 
 public class Controller {
 
+	private SaveController saveController;
 	private GUI gui;
 	private Map map;
 	
 	public Controller() {
 		this.map = new Map();
 		this.gui = new GUI(this, this.map);
+		this.saveController = new SaveController(this.gui, this.map);
+	}
+	
+	public void saveMap() {
+		this.saveController.saveMap();
 	}
 	
 	public void setHeight(int height) {

@@ -103,11 +103,22 @@ public class ControlPanel extends JPanel {
 		BSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
 		this.add(BSeperator);
 		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		
 		JButton generateButton = new JButton("Generate");
 		generateButton.addActionListener((e) ->{
 			controller.generateMap();
 		});
-		this.add(generateButton);
+		buttonPanel.add(generateButton);
+		
+		JButton saveButton = new JButton("Save");
+		saveButton.addActionListener((e) ->{
+			controller.saveMap();
+		});
+		buttonPanel.add(saveButton);
+		
+		this.add(buttonPanel);
 	}
 	
 }
