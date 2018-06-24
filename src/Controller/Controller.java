@@ -30,4 +30,16 @@ public class Controller {
 	public void setOctave(int octaves) {
 		this.map.setOctaves(octaves);
 	}
+
+	public void setMountainLevels(boolean selected) {
+		this.map.setMountainLevels(selected);
+	}
+
+	public void setGrass(boolean selected) {
+		this.map.setGrass(selected);
+	}
+	
+	public void setFlowers(boolean selected) {
+		this.map.setFlowers(selected);
+	}
 }

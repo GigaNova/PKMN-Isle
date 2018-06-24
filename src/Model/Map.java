@@ -9,11 +9,15 @@ public class Map extends Observable {
 	public final static int TILE_SIZE = 16;
 
 	public static final int MIN_OCTAVE = 1;
-	public static final int MAX_OCTAVE = 16;
+	public static final int MAX_OCTAVE = 10;
+	
+	private final static int MAX_ROCKS = 24;
+	private final static int MAX_FLOWERS = 48;
 	
 	private final static double SEA_LINE = 0.5;
-	private final static double BEACH_LINE = 0.65;
-
+	private final static double BEACH_LINE = 0.675;
+	private final static double MOUNTAIN_SECOND_LINE = 0.82;
+	
 	private final static int CLEANUP_COUNT = 40;
 	
 	private int height;
@@ -21,6 +25,9 @@ public class Map extends Observable {
 	private int octaves;
 	private float roughness;
 	private float scale;
+	private boolean grassEnabled;
+	private boolean flowersEnabled;
+	private boolean secondMountainEnabled;
 
 	private TileType[][] tiles;
 
@@ -30,6 +37,9 @@ public class Map extends Observable {
 		this.octaves = 4;
 		this.roughness = 0.66f;
 		this.scale = 0.012f;
+		this.grassEnabled = false;
+		this.secondMountainEnabled = true;
+		this.flowersEnabled = true;
 		this.resetTiles();
 	}
 
@@ -78,7 +88,12 @@ public class Map extends Observable {
 				} else if (f <= BEACH_LINE) {
 					this.tiles[x][y] = TileType.BEACH;
 				} else {
-					this.tiles[x][y] = TileType.MOUNTAIN;
+					if(f >= MOUNTAIN_SECOND_LINE && this.secondMountainEnabled) {
+						this.tiles[x][y] = TileType.MOUNTAIN_LV2;
+					}
+					else{
+						this.tiles[x][y] = TileType.MOUNTAIN;
+					}
 				}
 			}
 		}
@@ -87,10 +102,13 @@ public class Map extends Observable {
 			for (int x = 0; x < tiles.length; x++) {
 				for (int y = 0; y < tiles[x].length; y++) {
 					if (tiles[x][y] == TileType.MOUNTAIN) {
-						tiles[x][y] = cleanUpMountain(tiles, x, y);
+						tiles[x][y] = cleanUpMountain(x, y);
+					}
+					else if (tiles[x][y] == TileType.MOUNTAIN_LV2) {
+						tiles[x][y] = cleanUpMountainLeveled(x, y);
 					}
 					else if (tiles[x][y] == TileType.BEACH) {
-						tiles[x][y] = cleanUpBeach(tiles, x, y);
+						tiles[x][y] = cleanUpBeach(x, y);
 					}
 				}
 			}	
@@ -99,10 +117,13 @@ public class Map extends Observable {
 		for (int x = 0; x < tiles.length; x++) {
 			for (int y = 0; y < tiles[x].length; y++) {
 				if (tiles[x][y] == TileType.MOUNTAIN) {
-					tiles[x][y] = setMountain(tiles, x, y);
+					tiles[x][y] = setMountain(x, y);
+				}
+				else if (tiles[x][y] == TileType.MOUNTAIN_LV2) {
+					tiles[x][y] = setMountainLeveled(x, y);
 				}
 				else if(tiles[x][y] == TileType.BEACH) {
-					tiles[x][y] = setBeach(tiles, x, y);
+					tiles[x][y] = setBeach(x, y);
 				}
 			}
 		}
@@ -110,7 +131,7 @@ public class Map extends Observable {
 		for (int x = 0; x < tiles.length; x++) {
 			for (int y = 0; y < tiles[x].length; y++) {
 				if (tiles[x][y] != TileType.BEACH && tiles[x][y] != TileType.SEA) {
-					TileType type = setSecondMountain(tiles, x, y);
+					TileType type = setSecondMountain(x, y);
 					if (type != null) {
 						tiles[x][y] = type;
 					}
@@ -118,10 +139,86 @@ public class Map extends Observable {
 			}
 		}
 
+		if(this.grassEnabled && !this.secondMountainEnabled) {
+			this.fillGrass();
+		}
+		
+		for(int i = 0; i < MAX_ROCKS; ++i) {
+			this.tryPlaceRock();
+		}
+		
 		this.setChanged();
 		this.notifyObservers();
 	}
-	
+
+	private void fillGrass() {
+		Random random = new Random();
+		for (int x = 0; x < tiles.length; x++) {
+			for (int y = 0; y < tiles[x].length; y++) {
+				if(tiles[x][y] == TileType.MOUNTAIN) {
+					int i = random.nextInt(4);
+					switch(i) {
+					case 0:
+						tiles[x][y] = TileType.GRASS_1;
+						break;
+					case 1:
+						tiles[x][y] = TileType.GRASS_2;
+						break;
+					case 2:
+						tiles[x][y] = TileType.GRASS_3;
+						break;
+					case 3:
+						tiles[x][y] = TileType.GRASS_4;
+						break;
+					}
+				}
+				else if(tiles[x][y] == TileType.MOUNTAIN_U) {
+					tiles[x][y] = TileType.GRASS_UP;
+				}
+			}
+		}
+		
+		if(this.flowersEnabled) {
+			for(int i = 0; i < MAX_FLOWERS; ++i) {
+				int randX = random.nextInt(this.width - 4) + 4;
+				int randY = random.nextInt(this.height - 4) + 4;
+				if(TileType.isGrass(tiles[randX][randY])) {
+					tiles[randX][randY] = TileType.FLOWER;
+				}
+			}	
+		}
+	}
+
+	private void tryPlaceRock() {
+		Random random = new Random();
+		int randX = random.nextInt(this.width - 2);
+		int randY = random.nextInt(this.height - 2);
+		
+		if(randX + 1 > this.width) {
+			return;
+		}
+		else if(randY + 1 > this.height) {
+			return;
+		}
+		else if(tiles[randX][randY] != TileType.SEA) {
+			return;
+		}
+		else if(tiles[randX + 1][randY] != TileType.SEA) {
+			return;
+		}
+		else if(tiles[randX][randY + 1] != TileType.SEA) {
+			return;
+		}
+		else if(tiles[randX + 1][randY + 1] != TileType.SEA) {
+			return;
+		}
+		
+		tiles[randX][randY] = TileType.ROCK_UL;
+		tiles[randX + 1][randY] = TileType.ROCK_UR;
+		tiles[randX][randY + 1] = TileType.ROCK_LL;
+		tiles[randX + 1][randY + 1] = TileType.ROCK_LR;
+	}
+
 	public float[][] generateGradient(){
 		int centerX = this.width / 2;
 		int centerY = this.height / 2;
@@ -141,51 +238,101 @@ public class Map extends Observable {
 		return valueArray;
 	}
 
-	private TileType cleanUpMountain(TileType[][] tiles, int x, int y) {
+	private TileType cleanUpMountain(int x, int y) {
 		TileType tileU = null;
 		TileType tileL = null;
 		TileType tileD = null;
 		TileType tileR = null;
 
-		int i = 0;
+		int s = 0;
+		int t = 0;
 		if (x - 1 >= 0) {
 			if(tiles[x - 1][y] == TileType.BEACH) {
-				++i;
+				++s;
 			}
 		}
 		if (y - 1 >= 0) {
 			if(tiles[x][y - 1] == TileType.BEACH) {
-				++i;
+				++t;
 			}
 		}
 		if (x + 1 < this.width) {
 			if(tiles[x + 1][y] == TileType.BEACH) {
-				++i;
+				++s;
 			}
 		}
 		if (y + 1 < this.height) {
 			if(tiles[x][y + 1] == TileType.BEACH) {
-				++i;
+				++t;
 			}
 		}
 	
-		if(i >= 3) {
+		if(s == 2 || t == 2) {
 			return TileType.BEACH;
 		}
 		return TileType.MOUNTAIN;
 	}
 	
-	private TileType cleanUpBeach(TileType[][] tiles, int x, int y) {
+	private TileType cleanUpMountainLeveled(int x, int y) {
 		TileType tileU = null;
 		TileType tileL = null;
 		TileType tileD = null;
 		TileType tileR = null;
 
-		int i = 0;
+		int s = 0;
+		int t = 0;
+		int b = 0;
+		if (x - 1 >= 0) {
+			if(tiles[x - 1][y] == TileType.MOUNTAIN) {
+				++s;
+			}
+			else if(tiles[x - 1][y] == TileType.BEACH) {
+				++b;
+			}
+		}
+		if (y - 1 >= 0) {
+			if(tiles[x][y - 1] == TileType.MOUNTAIN) {
+				++t;
+			}
+			else if(tiles[x][y - 1] == TileType.BEACH) {
+				++b;
+			}
+		}
+		if (x + 1 < this.width) {
+			if(tiles[x + 1][y] == TileType.MOUNTAIN) {
+				++s;
+			}
+			else if(tiles[x + 1][y] == TileType.BEACH) {
+				++b;
+			}
+		}
+		if (y + 1 < this.height) {
+			if(tiles[x][y + 1] == TileType.MOUNTAIN) {
+				++t;
+			}
+			else if(tiles[x][y + 1] == TileType.BEACH) {
+				++b;
+			}
+		}
+	
+		if(b >= 1 || s == 2 || t == 2) {
+			return TileType.MOUNTAIN;
+		}
+		return TileType.MOUNTAIN_LV2;
+	}
+	
+	private TileType cleanUpBeach(int x, int y) {
+		TileType tileU = null;
+		TileType tileL = null;
+		TileType tileD = null;
+		TileType tileR = null;
+
 		int j = 0;
+		int s = 0;
+		int t = 0;
 		if (x - 1 >= 0) {
 			if(tiles[x - 1][y] == TileType.SEA) {
-				++i;
+				++s;
 			}
 			else if(tiles[x - 1][y] == TileType.MOUNTAIN) {
 				++j;
@@ -193,7 +340,7 @@ public class Map extends Observable {
 		}
 		if (y - 1 >= 0) {
 			if(tiles[x][y - 1] == TileType.SEA) {
-				++i;
+				++t;
 			}
 			else if(tiles[x][y - 1] == TileType.MOUNTAIN) {
 				++j;
@@ -201,7 +348,7 @@ public class Map extends Observable {
 		}
 		if (x + 1 < this.width) {
 			if(tiles[x + 1][y] == TileType.SEA) {
-				++i;
+				++s;
 			}
 			else if(tiles[x + 1][y] == TileType.MOUNTAIN) {
 				++j;
@@ -209,14 +356,14 @@ public class Map extends Observable {
 		}
 		if (y + 1 < this.height) {
 			if(tiles[x][y + 1] == TileType.SEA) {
-				++i;
+				++t;
 			}
 			else if(tiles[x][y + 1] == TileType.MOUNTAIN) {
 				++j;
 			}
 		}
 	
-		if(i >= 3) {
+		if(s == 2 || t == 2) {
 			return TileType.SEA;
 		}
 		else if(j >= 3) {
@@ -225,7 +372,7 @@ public class Map extends Observable {
 		return TileType.BEACH;
 	}
 	
-	private TileType setMountain(TileType[][] tiles, int x, int y) {
+	private TileType setMountain(int x, int y) {
 		TileType tileU = null;
 		TileType tileL = null;
 		TileType tileD = null;
@@ -243,24 +390,6 @@ public class Map extends Observable {
 		if (y + 1 < this.height) {
 			tileD = tiles[x][y + 1];
 		}
-
-		/*if (tileU == TileType.BEACH && tileR == TileType.BEACH) {
-			return TileType.MOUNTAIN_RCU;
-		} else if (tileU == TileType.BEACH && tileL == TileType.BEACH) {
-			return TileType.MOUNTAIN_LCU;
-		} else if (tileD == TileType.BEACH && tileR == TileType.BEACH) {
-			return TileType.MOUNTAIN_RCL;
-		} else if (tileD == TileType.BEACH && tileL == TileType.BEACH) {
-			return TileType.MOUNTAIN_LCL;
-		} else if (tileU != TileType.BEACH && tileL == TileType.BEACH) {
-			return TileType.MOUNTAIN_L;
-		} else if (tileU != TileType.BEACH && tileR == TileType.BEACH) {
-			return TileType.MOUNTAIN_R;
-		} else if (tileU == TileType.BEACH) {
-			return TileType.MOUNTAIN_U;
-		} else if (tileD == TileType.BEACH) {
-			return TileType.MOUNTAIN_D;
-		}*/
 		
 		if (TileType.isBeach(tileU) && TileType.isBeach(tileR)) {
 			return TileType.MOUNTAIN_RCU;
@@ -283,7 +412,47 @@ public class Map extends Observable {
 		return TileType.MOUNTAIN;
 	}
 	
-	private TileType setBeach(TileType[][] tiles, int x, int y) {
+	private TileType setMountainLeveled(int x, int y) {
+		TileType tileU = null;
+		TileType tileL = null;
+		TileType tileD = null;
+		TileType tileR = null;
+
+		if (x - 1 >= 0) {
+			tileL = tiles[x - 1][y];
+		}
+		if (y - 1 >= 0) {
+			tileU = tiles[x][y - 1];
+		}
+		if (x + 1 < this.width) {
+			tileR = tiles[x + 1][y];
+		}
+		if (y + 1 < this.height) {
+			tileD = tiles[x][y + 1];
+		}
+
+		if (TileType.isMountain(tileU) && TileType.isMountain(tileR)) {
+			return TileType.MOUNTAIN_LV2_RCU;
+		} else if (TileType.isMountain(tileU) && TileType.isMountain(tileL)) {
+			return TileType.MOUNTAIN_LV2_LCU;
+		} else if (TileType.isMountain(tileD) && TileType.isMountain(tileR)) {
+			return TileType.MOUNTAIN_LV2_RCL;
+		} else if (TileType.isMountain(tileD) && TileType.isMountain(tileL)) {
+			return TileType.MOUNTAIN_LV2_LCL;
+		} else if (TileType.isMountain(tileU)) {
+			return TileType.MOUNTAIN_LV2_U;
+		} else if (TileType.isMountain(tileD)) {
+			return TileType.MOUNTAIN_LV2_D;
+		} else if (TileType.isMountain(tileR)) {
+			return TileType.MOUNTAIN_LV2_R;
+		} else if (TileType.isMountain(tileL)) {
+			return TileType.MOUNTAIN_LV2_L;
+		}
+
+		return TileType.MOUNTAIN_LV2;
+	}
+	
+	private TileType setBeach(int x, int y) {
 		TileType tileU = null;
 		TileType tileL = null;
 		TileType tileD = null;
@@ -323,7 +492,7 @@ public class Map extends Observable {
 		return TileType.BEACH;
 	}
 
-	private TileType setSecondMountain(TileType[][] tiles, int x, int y) {
+	private TileType setSecondMountain(int x, int y) {
 		TileType tileU = null;
 		TileType tileL = null;
 		TileType tileD = null;
@@ -346,14 +515,24 @@ public class Map extends Observable {
 				|| tileD == TileType.MOUNTAIN_L && tileL == TileType.MOUNTAIN_LCL
 				|| tileD == TileType.MOUNTAIN_LCL && tileL == TileType.MOUNTAIN_LCL
 				|| tileD == TileType.MOUNTAIN_LCL && tileL == TileType.MOUNTAIN_L
-				|| tileD == TileType.MOUNTAIN_LCL && tileL == TileType.MOUNTAIN_D) {
+				|| tileD == TileType.MOUNTAIN_LCL && tileL == TileType.MOUNTAIN_D
+				|| tileD == TileType.MOUNTAIN_LV2_L && tileL == TileType.MOUNTAIN_LV2_D
+				|| tileD == TileType.MOUNTAIN_LV2_L && tileL == TileType.MOUNTAIN_LV2_LCL
+				|| tileD == TileType.MOUNTAIN_LV2_LCL && tileL == TileType.MOUNTAIN_LV2_LCL
+				|| tileD == TileType.MOUNTAIN_LV2_LCL && tileL == TileType.MOUNTAIN_LV2_L
+				|| tileD == TileType.MOUNTAIN_LV2_LCL && tileL == TileType.MOUNTAIN_LV2_D) {
 			return TileType.MOUNTAIN_SPL;
 		}
 		else if (tileD == TileType.MOUNTAIN_R && tileR == TileType.MOUNTAIN_D
 				|| tileD == TileType.MOUNTAIN_R && tileR == TileType.MOUNTAIN_RCL
 				|| tileD == TileType.MOUNTAIN_RCL && tileR == TileType.MOUNTAIN_RCL
 				|| tileD == TileType.MOUNTAIN_RCL && tileR == TileType.MOUNTAIN_R
-				|| tileD == TileType.MOUNTAIN_RCL && tileR == TileType.MOUNTAIN_D) {
+				|| tileD == TileType.MOUNTAIN_RCL && tileR == TileType.MOUNTAIN_D
+				|| tileD == TileType.MOUNTAIN_LV2_R && tileR == TileType.MOUNTAIN_LV2_D
+				|| tileD == TileType.MOUNTAIN_LV2_R && tileR == TileType.MOUNTAIN_LV2_RCL
+				|| tileD == TileType.MOUNTAIN_LV2_RCL && tileR == TileType.MOUNTAIN_LV2_RCL
+				|| tileD == TileType.MOUNTAIN_LV2_RCL && tileR == TileType.MOUNTAIN_LV2_R
+				|| tileD == TileType.MOUNTAIN_LV2_RCL && tileR == TileType.MOUNTAIN_LV2_D) {
 			return TileType.MOUNTAIN_SPR;
 		}
 
@@ -396,6 +575,10 @@ public class Map extends Observable {
 		this.notifyObservers();
 	}
 
+	public void setMountainLevels(boolean selected) {
+		this.secondMountainEnabled = selected;
+	}
+	
 	public float getRoughness() {
 		return roughness;
 	}
@@ -414,5 +597,13 @@ public class Map extends Observable {
 		this.scale = scale;
 		this.setChanged();
 		this.notifyObservers();
+	}
+
+	public void setGrass(boolean selected) {
+		this.grassEnabled = selected;
+	}
+	
+	public void setFlowers(boolean selected) {
+		this.flowersEnabled = selected;
 	}
 }

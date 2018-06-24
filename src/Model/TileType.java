@@ -2,6 +2,7 @@ package Model;
 
 public enum TileType {
 	SEA(188, 86),
+	
 	BEACH(1, 460),
 	BEACH_RCU(69, 477),
 	BEACH_LCU(52, 477),
@@ -24,7 +25,29 @@ public enum TileType {
 	MOUNTAIN_L(375, 698),
 	MOUNTAIN_D(341, 307),
 	MOUNTAIN_SPL(324, 341),
-	MOUNTAIN_SPR(341, 341);
+	MOUNTAIN_SPR(341, 341),
+	
+	MOUNTAIN_LV2(358, 273),
+	MOUNTAIN_LV2_RCU(358, 681),
+	MOUNTAIN_LV2_LCU(307, 681),
+	MOUNTAIN_LV2_RCL(358, 715),
+	MOUNTAIN_LV2_LCL(307, 715),
+	MOUNTAIN_LV2_U(341, 681),
+	MOUNTAIN_LV2_R(358, 698),
+	MOUNTAIN_LV2_L(307, 698),
+	MOUNTAIN_LV2_D(341, 307),
+	
+	ROCK_UL(171, 273),
+	ROCK_UR(188, 273),
+	ROCK_LL(171, 256),
+	ROCK_LR(188, 256), 
+	
+	GRASS_1(103, 1),
+	GRASS_2(103, 18),
+	GRASS_3(103, 35),
+	GRASS_4(120, 18),
+	GRASS_UP(341, 324),
+	FLOWER(120, 35);
 	
 	private final int x;
 	private final int y;
@@ -56,6 +79,39 @@ public enum TileType {
 		case BEACH_RCU:
 		case BEACH_SPL:
 		case BEACH_SPR:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public static boolean isMountain(TileType tileType) {
+		if(tileType == null) return false;
+		switch(tileType) {
+		case MOUNTAIN:
+		case MOUNTAIN_D:
+		case MOUNTAIN_L:
+		case MOUNTAIN_U:
+		case MOUNTAIN_LCL:
+		case MOUNTAIN_LCU:
+		case MOUNTAIN_R:
+		case MOUNTAIN_RCL:
+		case MOUNTAIN_RCU:
+		case MOUNTAIN_SPL:
+		case MOUNTAIN_SPR:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public static boolean isGrass(TileType tileType) {
+		if(tileType == null) return false;
+		switch(tileType) {
+		case GRASS_1:
+		case GRASS_2:
+		case GRASS_3:
+		case GRASS_4:
 			return true;
 		default:
 			return false;

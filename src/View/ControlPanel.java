@@ -1,10 +1,17 @@
 package View;
 
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 
 import Controller.Controller;
 import Model.Map;
@@ -15,6 +22,7 @@ public class ControlPanel extends JPanel {
 	public ControlPanel(Controller controller, Map map) {
 		this.controller = controller;
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setBorder(BorderFactory.createTitledBorder("MainSettings"));
 		
 		this.add(new JLabel("Width"));
 		JSlider mapWidthSlider = new JSlider(JSlider.HORIZONTAL, Map.MIN_MAP_SIZE, Map.MAX_MAP_SIZE, map.getWidth());
@@ -48,6 +56,27 @@ public class ControlPanel extends JPanel {
 		mapOctaveSlider.setPaintTicks(true);
 		mapOctaveSlider.setPaintLabels(true);
 		this.add(mapOctaveSlider);
+		
+		JSeparator MSeperator = new JSeparator(SwingConstants.HORIZONTAL);
+		MSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
+		this.add(MSeperator);
+		
+		JCheckBox checkbox = new JCheckBox("Multi-level Mountains");
+		checkbox.setSelected(true);
+		checkbox.addActionListener((e)->{
+			controller.setMountainLevels(checkbox.isSelected());
+		});
+		this.add(checkbox);
+		
+		JSeparator GSeperator = new JSeparator(SwingConstants.HORIZONTAL);
+		GSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
+		this.add(GSeperator);
+		
+		this.add(new GrassPanel(controller, map));
+		
+		JSeparator BSeperator = new JSeparator(SwingConstants.HORIZONTAL);
+		BSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
+		this.add(BSeperator);
 		
 		JButton generateButton = new JButton("Generate");
 		generateButton.addActionListener((e) ->{
