@@ -26,8 +26,8 @@ public class MapPanel extends JPanel implements Observer {
 		this.map = map;
 		this.map.addObserver(this);
 
-		this.tileSet = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("../Resource/tileset.png"));
-		this.permissions = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("../Resource/permissions.png"));
+		this.tileSet = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/Resources/tileset.png"));
+		this.permissions = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/Resources/permissions.png"));
 
 		this.setSize();
 		this.setBackground(Color.BLUE);
