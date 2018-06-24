@@ -26,6 +26,6 @@ public class GUI extends JFrame {
 	}
 
 	public void updateTitle() {
-		this.setTitle("PKMN - Island Generator (" + this.map.getWidth() + "x" + this.map.getHeight() + ")");
+		this.setTitle("PKMN - IsleGen (" + this.map.getWidth() + "x" + this.map.getHeight() + ")");
 	}
 }

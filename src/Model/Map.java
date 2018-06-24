@@ -683,4 +683,8 @@ public class Map extends Observable {
 	public void setSurfable(boolean selected) {
 		this.surfAble = selected;
 	}
+
+	public boolean isSurfable() {
+		return this.surfAble;
+	}
 }

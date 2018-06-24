@@ -65,8 +65,13 @@ public class SaveController {
 		TileType[][] tiles = map.getTiles();
 		for (int y = 0; y < map.getHeight(); ++y) {
 			for(int x = 0; x < map.getWidth(); ++x) {
-				hexString += tiles[x][y].getTileByte();
-				hexString += tiles[x][y].getPerByte();
+				if(tiles[x][y] == TileType.SEA && !this.map.isSurfable()) {
+					hexString += tiles[x][y].getTileByte();
+					hexString += "05";
+				}else {
+					hexString += tiles[x][y].getTileByte();
+					hexString += tiles[x][y].getPerByte();	
+				}
 			}
 		}
 		

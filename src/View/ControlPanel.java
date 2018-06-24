@@ -2,6 +2,8 @@ package View;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,11 +22,14 @@ public class ControlPanel extends JPanel {
 	private Controller controller;
 	
 	public ControlPanel(Controller controller, Map map) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		
 		this.controller = controller;
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setLayout(new GridBagLayout());
 		this.setBorder(BorderFactory.createTitledBorder("MainSettings"));
 		
-		this.add(new JLabel("Width"));
+		gbc.gridy = 0;
+		this.add(new JLabel("Width"), gbc);
 		JSlider mapWidthSlider = new JSlider(JSlider.HORIZONTAL, Map.MIN_MAP_SIZE, Map.MAX_MAP_SIZE, map.getWidth());
 		mapWidthSlider.addChangeListener((e) ->{
 			controller.setWidth(mapWidthSlider.getValue());
@@ -33,9 +38,12 @@ public class ControlPanel extends JPanel {
 		mapWidthSlider.setMinorTickSpacing(1);
 		mapWidthSlider.setPaintTicks(true);
 		mapWidthSlider.setPaintLabels(true);
-		this.add(mapWidthSlider);
 		
-		this.add(new JLabel("Height"));
+		gbc.gridy = 1;
+		this.add(mapWidthSlider, gbc);
+		
+		gbc.gridy = 2;
+		this.add(new JLabel("Height"), gbc);
 		JSlider mapHeightSlider = new JSlider(JSlider.HORIZONTAL, Map.MIN_MAP_SIZE, Map.MAX_MAP_SIZE, map.getHeight());
 		mapHeightSlider.addChangeListener((e) ->{
 			controller.setHeight(mapHeightSlider.getValue());
@@ -44,9 +52,12 @@ public class ControlPanel extends JPanel {
 		mapHeightSlider.setMinorTickSpacing(1);
 		mapHeightSlider.setPaintTicks(true);
 		mapHeightSlider.setPaintLabels(true);
-		this.add(mapHeightSlider);
+	
+		gbc.gridy = 3;
+		this.add(mapHeightSlider, gbc);
 		
-		this.add(new JLabel("Octave"));
+		gbc.gridy = 4;
+		this.add(new JLabel("Octave"), gbc);
 		JSlider mapOctaveSlider = new JSlider(JSlider.HORIZONTAL, Map.MIN_OCTAVE, Map.MAX_OCTAVE, map.getOctaves());
 		mapOctaveSlider.addChangeListener((e) ->{
 			controller.setOctave(mapOctaveSlider.getValue());
@@ -55,53 +66,44 @@ public class ControlPanel extends JPanel {
 		mapOctaveSlider.setMinorTickSpacing(1);
 		mapOctaveSlider.setPaintTicks(true);
 		mapOctaveSlider.setPaintLabels(true);
-		this.add(mapOctaveSlider);
 		
-		JSeparator MSeperator = new JSeparator(SwingConstants.HORIZONTAL);
-		MSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
-		this.add(MSeperator);
+		gbc.gridy = 5;
+		this.add(mapOctaveSlider, gbc);
 		
 		JCheckBox checkbox = new JCheckBox("Multi-level Mountains");
 		checkbox.setSelected(true);
 		checkbox.addActionListener((e)->{
 			controller.setMountainLevels(checkbox.isSelected());
 		});
-		this.add(checkbox);
+		gbc.gridy = 6;
+		this.add(checkbox, gbc);
 		
 		JCheckBox SCheckbox = new JCheckBox("Sea is surfable");
 		SCheckbox.setSelected(true);
 		SCheckbox.addActionListener((e)->{
 			controller.setSurfable(SCheckbox.isSelected());
 		});
-		this.add(SCheckbox);
+		gbc.gridy = 7;
+		this.add(SCheckbox, gbc);
 		
 		JCheckBox RCheckbox = new JCheckBox("Rocks on beach");
 		RCheckbox.setSelected(false);
 		RCheckbox.addActionListener((e)->{
 			controller.setBeachRocks(RCheckbox.isSelected());
 		});
-		this.add(RCheckbox);
+		gbc.gridy = 8;
+		this.add(RCheckbox, gbc);
 		
-		JSeparator GSeperator = new JSeparator(SwingConstants.HORIZONTAL);
-		GSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
-		this.add(GSeperator);
-		
-		this.add(new GrassPanel(controller, map));
-		
-		JSeparator PSeperator = new JSeparator(SwingConstants.HORIZONTAL);
-		PSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
-		this.add(PSeperator);
+		gbc.gridy = 9;
+		this.add(new GrassPanel(controller, map), gbc);
 		
 		JCheckBox PCheckbox = new JCheckBox("Show Permissions");
 		PCheckbox.setSelected(false);
 		PCheckbox.addActionListener((e)->{
 			controller.setPermissions(PCheckbox.isSelected());
 		});
-		this.add(PCheckbox);
-		
-		JSeparator BSeperator = new JSeparator(SwingConstants.HORIZONTAL);
-		BSeperator.setMaximumSize( new Dimension(Integer.MAX_VALUE, 4) );
-		this.add(BSeperator);
+		gbc.gridy = 10;
+		this.add(PCheckbox, gbc);
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -110,15 +112,18 @@ public class ControlPanel extends JPanel {
 		generateButton.addActionListener((e) ->{
 			controller.generateMap();
 		});
-		buttonPanel.add(generateButton);
+		gbc.gridy = 11;
+		buttonPanel.add(generateButton, gbc);
 		
 		JButton saveButton = new JButton("Save");
 		saveButton.addActionListener((e) ->{
 			controller.saveMap();
 		});
-		buttonPanel.add(saveButton);
+		gbc.gridy = 12;
+		buttonPanel.add(saveButton, gbc);
 		
-		this.add(buttonPanel);
+		gbc.gridy = 13;
+		this.add(buttonPanel, gbc);
 	}
 	
 }
